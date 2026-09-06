@@ -73,12 +73,27 @@ export function renderNavbar(props: NavbarProps): string {
             </div>
           </div>
 
-          <!-- Quick Status Badge -->
-          <div class="hidden sm:flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <!-- Quick Status & Admin Profile -->
+          <div class="flex items-center gap-2.5">
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Face BioNet พร้อมใช้งาน
             </span>
+
+            <div class="flex items-center gap-2 pl-2.5 border-l border-amber-200">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-white font-bold flex items-center justify-center text-xs shadow-xs ring-2 ring-amber-300/50">
+                SB
+              </div>
+              <div class="text-left text-xs">
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-slate-900">Somboon</span>
+                  <span class="px-1.5 py-0.2 bg-purple-100 text-purple-900 text-[9px] font-bold rounded">
+                    Admin
+                  </span>
+                </div>
+                <span class="text-[10px] text-slate-500">Super Administrator</span>
+              </div>
+            </div>
           </div>
         </div>
 
