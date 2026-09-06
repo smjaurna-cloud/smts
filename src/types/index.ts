@@ -173,6 +173,21 @@ export interface TuitionReceipt {
   issuedAt: string;
 }
 
+export interface CourseSchedule {
+  id: string;
+  day: 'วันพฤหัสบดี' | 'วันศุกร์';
+  period: string; // e.g. 'คาบที่ ๔ - ๖'
+  timeRange: string; // e.g. '๑๒.๔๕ - ๑๕.๔๕ น.'
+  courseCode: string; // e.g. '๖๒๐ ๑๐๑'
+  courseNameTh: string; // e.g. 'หลักประมวลคำสอนของพระพุทธเจ้าในพระไตรปิฎกเถรวาท'
+  courseNameEn?: string; // e.g. 'The Nine Bases of Buddha Teaching in Theravada Tipitaka'
+  courseType: 'วิชาบังคับ' | 'วิชาเอก' | 'วิชาเลือก' | 'วิชาปรับพื้นฐาน' | 'วิทยานิพนธ์/ดุษฎีนิพนธ์' | 'วิชาบังคับไม่นับหน่วยกิต';
+  credits: string; // e.g. '๓ (๓-๐-๖)'
+  instructor: string; // e.g. 'ผศ.ดร.สุทธิพงษ์ พรชัยธนบวร และคณะ'
+  teachingTeam?: string[]; // รายนามคณะอาจารย์ผู้สอน
+  cohortPlan?: string; // e.g. 'ชั้นปีที่ ๑ (รุ่นที่ ๓)', 'แผน ๑.๑', 'แผน ๒.๑'
+}
+
 export interface ZoomRoom {
   roomNumber: 1 | 2 | 3 | 4;
   name: string;
@@ -184,6 +199,7 @@ export interface ZoomRoom {
   meetingId: string;
   isLive: boolean;
   activeTopic?: string;
+  schedules?: CourseSchedule[];
 }
 
 export interface BackupData {

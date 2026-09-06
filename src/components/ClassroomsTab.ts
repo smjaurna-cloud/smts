@@ -90,6 +90,68 @@ export function renderClassroomsTab(): string {
               </div>
             </div>
           </div>
+
+          <!-- Official Course Timetable & Faculty Section -->
+          <div class="mt-4 pt-3.5 border-t border-stone-200/80">
+            <div class="flex items-center justify-between mb-2.5">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+                <span class="w-4 h-4 text-amber-600">${icons.calendar}</span>
+                <span>ตารางเรียนและคณาจารย์ (ภาคเรียนที่ ๑/๒๕๖๙)</span>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-semibold border border-amber-200">
+                ${room.schedules ? room.schedules.length : 0} รายวิชา
+              </span>
+            </div>
+
+            <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
+              ${(room.schedules && room.schedules.length > 0) ? room.schedules.map(sch => `
+                <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/90 hover:border-amber-300 hover:bg-amber-50/40 transition-all text-xs space-y-1.5">
+                  <div class="flex items-center justify-between gap-1 flex-wrap">
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${sch.day === 'วันพฤหัสบดี' ? 'bg-orange-100 text-orange-800 border border-orange-200' : 'bg-blue-100 text-blue-800 border border-blue-200'}">
+                        ${sch.day}
+                      </span>
+                      <span class="text-slate-700 text-[11px] font-semibold">${sch.timeRange}</span>
+                      <span class="text-slate-400 text-[10px]">(${sch.period})</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                      sch.courseType === 'วิชาเอก' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                      sch.courseType === 'วิชาบังคับ' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+                      sch.courseType === 'วิชาเลือก' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
+                      sch.courseType === 'วิทยานิพนธ์/ดุษฎีนิพนธ์' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                      'bg-slate-200 text-slate-700 border border-slate-300'
+                    }">
+                      ${sch.courseType} • ${sch.credits}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div class="font-bold text-slate-900 text-xs flex items-center gap-1.5 flex-wrap">
+                      <span class="font-mono text-amber-900 bg-amber-100/90 px-1.5 py-0.5 rounded font-bold text-[11px] border border-amber-200/80">${sch.courseCode}</span>
+                      <span>${sch.courseNameTh}</span>
+                    </div>
+                    ${sch.courseNameEn ? `<div class="text-[10px] text-slate-500 italic mt-0.5">${sch.courseNameEn}</div>` : ''}
+                    ${sch.cohortPlan ? `<div class="text-[10px] text-rose-700 font-medium mt-1">🎯 ${sch.cohortPlan}</div>` : ''}
+                  </div>
+
+                  <div class="pt-1.5 border-t border-stone-200/70 flex flex-col gap-0.5">
+                    <div class="flex items-start gap-1 text-[11px]">
+                      <span class="font-semibold text-slate-700 shrink-0">อาจารย์ผู้สอน:</span>
+                      <span class="font-bold text-amber-950">${sch.instructor}</span>
+                    </div>
+                    ${sch.teachingTeam && sch.teachingTeam.length > 0 ? `
+                      <div class="flex items-start gap-1 text-[10px] text-slate-500 pl-1">
+                        <span class="shrink-0">• คณะผู้สอน:</span>
+                        <span>${sch.teachingTeam.join(', ')}</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('') : `
+                <div class="text-center py-4 text-xs text-slate-400">ไม่มีข้อมูลตารางเรียนในระบบ</div>
+              `}
+            </div>
+          </div>
         </div>
 
         <!-- Action Buttons -->
