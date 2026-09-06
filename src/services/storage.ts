@@ -966,6 +966,100 @@ class StorageService {
     const norm = Math.sqrt(vec.reduce((sum, v) => sum + v * v, 0)) || 1;
     return vec.map(v => Number((v / norm).toFixed(4)));
   }
+
+  // --- CSV DATA EXPORT METHODS (WITH UTF-8 BOM) ---
+  generateAttendanceCSV(): string {
+    const records = this.getAttendanceRecords();
+    const headers = ['วันที่', 'เวลา', 'รหัสนิสิต', 'ชื่อ-นามสกุล', 'สาขาวิชา/รุ่น', 'สถานะการเข้าเรียน', 'วิธีการเช็กชื่อ', 'Diff Score', 'ความเชื่อมั่น (%)', 'หมายเหตุ'];
+    const rows = records.map(r => [
+      `"${r.date}"`,
+      `"${r.time}"`,
+      `"${r.studentId}"`,
+      `"${r.studentName.replace(/"/g, '""')}"`,
+      `"${r.programCohort}"`,
+      `"${r.status === 'PRESENT' ? 'มาเรียน' : r.status === 'LATE' ? 'มาสาย' : r.status === 'EXCUSED' ? 'ลากิจ/ลาป่วย' : 'ขาดเรียน'}"`,
+      `"${r.method === 'FACE_SCAN' ? 'สแกนใบหน้าอัตโนมัติ' : 'เช็กชื่อด้วยตนเอง'}"`,
+      `"${r.differenceScore !== null ? r.differenceScore.toFixed(3) : '-'}"`,
+      `"${r.confidence !== null ? `${r.confidence}%` : '-'}"`,
+      `"${(r.note || '').replace(/"/g, '""')}"`,
+    ]);
+    return '\uFEFF' + [headers.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+  }
+
+  generateStudentsCSV(): string {
+    const students = this.getStudents();
+    const headers = ['รหัสนิสิต', 'ชื่อ-นามสกุล/ฉายา', 'สาขาวิชา/รุ่น', 'อีเมล', 'สถานะเวกเตอร์ใบหน้า', 'ยินยอม PDPA', 'วันที่ลงทะเบียน'];
+    const rows = students.map(s => [
+      `"${s.studentId}"`,
+      `"${s.fullName.replace(/"/g, '""')}"`,
+      `"${s.programCohort}"`,
+      `"${s.email}"`,
+      `"${s.faceDescriptor ? 'ลงทะเบียนแล้ว (128-d)' : 'ยังไม่ลงทะเบียน'}"`,
+      `"${s.pdpaConsented ? 'ยินยอมแล้ว' : 'ยังไม่ยินยอม'}"`,
+      `"${s.createdAt ? s.createdAt.split('T')[0] : '-'}"`,
+    ]);
+    return '\uFEFF' + [headers.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+  }
+
+  generateTimetableCSV(): string {
+    const rooms = this.getZoomRooms();
+    const headers = ['ห้องเรียน Zoom', 'สถานที่ออนไซต์', 'วัน', 'เวลา', 'คาบ', 'รหัสวิชา', 'ชื่อวิชาภาษาไทย', 'ชื่อวิชาภาษาอังกฤษ', 'ประเภทวิชา', 'หน่วยกิต', 'อาจารย์ผู้สอนหลัก', 'คณะผู้สอนร่วม', 'หลักสูตรเป้าหมาย'];
+    const rows: string[][] = [];
+    rooms.forEach(room => {
+      (room.schedules || []).forEach(sch => {
+        rows.push([
+          `"${room.name.replace(/"/g, '""')}"`,
+          `"${room.onSiteLocation.replace(/"/g, '""')}"`,
+          `"${sch.day}"`,
+          `"${sch.timeRange}"`,
+          `"${sch.period}"`,
+          `"${sch.courseCode}"`,
+          `"${sch.courseNameTh.replace(/"/g, '""')}"`,
+          `"${(sch.courseNameEn || '').replace(/"/g, '""')}"`,
+          `"${sch.courseType}"`,
+          `"${sch.credits}"`,
+          `"${sch.instructor.replace(/"/g, '""')}"`,
+          `"${(sch.teachingTeam || []).join('; ').replace(/"/g, '""')}"`,
+          `"${(sch.cohortPlan || room.targetProgram).replace(/"/g, '""')}"`,
+        ]);
+      });
+    });
+    return '\uFEFF' + [headers.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+  }
+
+  generateReceiptsCSV(): string {
+    const receipts = this.getTuitionReceipts();
+    const headers = ['เลขที่ใบเสร็จ', 'รหัสนิสิต', 'ชื่อผู้ชำระ/นิสิต', 'หลักสูตร/รุ่น', 'ภาคการศึกษา', 'ปีการศึกษา', 'ยอดชำระ (บาท)', 'วิธีชำระเงิน', 'เลขอ้างอิง', 'วันที่ออกใบเสร็จ'];
+    const rows = receipts.map(r => [
+      `"${r.receiptNumber}"`,
+      `"${r.studentId}"`,
+      `"${r.studentName.replace(/"/g, '""')}"`,
+      `"${r.programCohort}"`,
+      `"${r.semester}"`,
+      `"${r.academicYear}"`,
+      `"${r.totalAmount}"`,
+      `"${r.paymentMethod}"`,
+      `"${r.referenceNumber}"`,
+      `"${r.paymentDate}"`,
+    ]);
+    return '\uFEFF' + [headers.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+  }
+
+  generatePetitionsCSV(): string {
+    const petitions = this.getPetitions();
+    const headers = ['รหัสคำร้อง', 'หมวดหมู่', 'หัวข้อคำร้อง', 'รายละเอียด', 'ผู้ยื่น', 'ระดับความเร่งด่วน', 'สถานะคำร้อง', 'วันที่ยื่น'];
+    const rows = petitions.map(p => [
+      `"${p.ticketNumber}"`,
+      `"${p.category}"`,
+      `"${p.title.replace(/"/g, '""')}"`,
+      `"${p.detail.replace(/"/g, '""')}"`,
+      `"${p.isAnonymous ? 'ไม่เปิดเผยตัวตน (Anonymous)' : (p.studentName || p.studentId || '-').replace(/"/g, '""')}"`,
+      `"${p.urgency}"`,
+      `"${p.status}"`,
+      `"${p.createdAt.split('T')[0]}"`,
+    ]);
+    return '\uFEFF' + [headers.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+  }
 }
 
 export const storageService = new StorageService();

@@ -27,7 +27,7 @@ export function renderNavbar(props: NavbarProps): string {
     { id: 'petitions', label: 'ยื่นคำร้องเรียน', icon: icons.messageSquare },
     { id: 'register', label: 'ลงทะเบียนใบหน้า', icon: icons.userPlus },
     { id: 'students', label: 'จัดการข้อมูลนิสิต', icon: icons.users },
-    { id: 'data', label: 'สำรอง/รีเซ็ตข้อมูล', icon: icons.database },
+    { id: 'data', label: 'ศูนย์ดาวน์โหลด & ข้อมูล', icon: icons.download },
   ];
 
   const tabButtons = tabs.map(t => {

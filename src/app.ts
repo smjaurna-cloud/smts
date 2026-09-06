@@ -1088,6 +1088,52 @@ class AppController {
     const fileInput = document.getElementById('ipt-import-file') as HTMLInputElement;
     const seedBtn = document.getElementById('btn-seed-data');
     const resetBtn = document.getElementById('btn-system-reset');
+    const dlAttendanceBtn = document.getElementById('btn-dl-attendance-csv');
+    const dlStudentsBtn = document.getElementById('btn-dl-students-csv');
+    const dlTimetableBtn = document.getElementById('btn-dl-timetable-csv');
+    const dlReceiptsBtn = document.getElementById('btn-dl-receipts-csv');
+    const dlPetitionsBtn = document.getElementById('btn-dl-petitions-csv');
+
+    if (dlAttendanceBtn) {
+      dlAttendanceBtn.onclick = () => {
+        const csv = storageService.generateAttendanceCSV();
+        const dateStr = new Date().toISOString().split('T')[0];
+        this.downloadFile(csv, `attendance_records_${dateStr}.csv`, 'text/csv;charset=utf-8;');
+        this.showToast('ดาวน์โหลดประวัติเข้าเรียน (Excel/CSV) เรียบร้อยแล้ว', 'success');
+      };
+    }
+
+    if (dlStudentsBtn) {
+      dlStudentsBtn.onclick = () => {
+        const csv = storageService.generateStudentsCSV();
+        this.downloadFile(csv, `student_roster_graduate.csv`, 'text/csv;charset=utf-8;');
+        this.showToast('ดาวน์โหลดทะเบียนรายชื่อนิสิต (Excel/CSV) เรียบร้อยแล้ว', 'success');
+      };
+    }
+
+    if (dlTimetableBtn) {
+      dlTimetableBtn.onclick = () => {
+        const csv = storageService.generateTimetableCSV();
+        this.downloadFile(csv, `course_timetables_sem1_2569.csv`, 'text/csv;charset=utf-8;');
+        this.showToast('ดาวน์โหลดตารางเรียนและอาจารย์ ๔ ห้อง Zoom (Excel/CSV) เรียบร้อยแล้ว', 'success');
+      };
+    }
+
+    if (dlReceiptsBtn) {
+      dlReceiptsBtn.onclick = () => {
+        const csv = storageService.generateReceiptsCSV();
+        this.downloadFile(csv, `tuition_receipts_ledger.csv`, 'text/csv;charset=utf-8;');
+        this.showToast('ดาวน์โหลดทะเบียนใบเสร็จค่าเทอม (Excel/CSV) เรียบร้อยแล้ว', 'success');
+      };
+    }
+
+    if (dlPetitionsBtn) {
+      dlPetitionsBtn.onclick = () => {
+        const csv = storageService.generatePetitionsCSV();
+        this.downloadFile(csv, `petitions_grievance_log.csv`, 'text/csv;charset=utf-8;');
+        this.showToast('ดาวน์โหลดบันทึกคำร้องเรียน (Excel/CSV) เรียบร้อยแล้ว', 'success');
+      };
+    }
 
     if (exportBtn) {
       exportBtn.onclick = () => this.exportBackupJson();
@@ -1116,16 +1162,9 @@ class AppController {
     }
   }
 
-  private exportBackupJson(): void {
-    const data = storageService.exportData();
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
+  private downloadFile(content: string, filename: string, mimeType: string): void {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
-
-    const now = new Date();
-    const dateStamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-    const filename = `mcu_attendance_backup_${dateStamp}.json`;
-
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
@@ -1133,7 +1172,15 @@ class AppController {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
 
+  private exportBackupJson(): void {
+    const data = storageService.exportData();
+    const jsonStr = JSON.stringify(data, null, 2);
+    const now = new Date();
+    const dateStamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+    const filename = `mcu_attendance_backup_${dateStamp}.json`;
+    this.downloadFile(jsonStr, filename, 'application/json');
     this.showToast(`ส่งออกไฟล์สำรองข้อมูล "${filename}" เรียบร้อยแล้ว`, 'success');
   }
 
